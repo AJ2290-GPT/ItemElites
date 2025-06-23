@@ -1,64 +1,54 @@
 import React, { useState } from 'react';
 
 function App() {
-  const [query, setQuery] = useState('');
+  const [userInput, setUserInput] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  async function handleSearch() {
+  const handleSearch = async () => {
+    if (!userInput.trim()) return;
+
     setLoading(true);
-    setError(null);
-    setResults([]);
-
     try {
       const res = await fetch('https://itemelites-backend.onrender.com/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ input: userInput }),
       });
 
-      if (!res.ok) {
-        throw new Error('Server error');
-      }
-
       const data = await res.json();
-
-      setResults(data.results || []); // assuming backend sends { results: [...] }
-    } catch (err) {
-      setError('Failed to get results. Try again.');
+      setResults(data.results || []);
+    } catch (error) {
+      console.error('Error fetching:', error);
+      setResults(['Something went wrong.']);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <h1>ItemElites Search</h1>
+    <div style={{ padding: '2rem', fontFamily: 'Arial' }}>
+      <h1>ItemElites</h1>
       <input
         type="text"
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        placeholder="Search items..."
-        style={{ padding: '8px', width: '300px' }}
+        placeholder="Search for an item..."
+        value={userInput}
+        onChange={(e) => setUserInput(e.target.value)}
+        style={{ padding: '0.5rem', width: '300px' }}
       />
-      <button
-        onClick={handleSearch}
-        disabled={loading || !query.trim()}
-        style={{ marginLeft: '10px', padding: '8px 16px' }}
-      >
-        {loading ? 'Searching...' : 'Search'}
+      <button onClick={handleSearch} style={{ padding: '0.5rem', marginLeft: '10px' }}>
+        Search
       </button>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {loading && <p>Loading...</p>}
 
-      <ul>
-        {results.map((item, i) => (
-          <li key={i} style={{ margin: '8px 0' }}>
-            {item}
-          </li>
+      <ul style={{ marginTop: '20px' }}>
+        {results.map((item, index) => (
+          <li key={index}>{item}</li>
         ))}
       </ul>
     </div>
   );
 }
+
+export default App;
