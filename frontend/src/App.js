@@ -10,14 +10,14 @@ function App() {
 
     setLoading(true);
     try {
-      const res = await fetch('https://itemelites-backend.onrender.com', {
+      const res = await fetch('https://itemelites-backend.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: userInput }),
+        body: JSON.stringify({ message: userInput }),
       });
 
       const data = await res.json();
-      setResults(data.results || []);
+      setResults([data.reply]);
     } catch (error) {
       console.error('Error fetching:', error);
       setResults(['Something went wrong.']);
